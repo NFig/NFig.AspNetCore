@@ -1,0 +1,19 @@
+﻿@model NFig.AspNetCore.Sample.Views.Home.IndexModel
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NFig.AspNetCore.Sample</title>
+</head>
+<body>
+    <ul>
+        <li>Site Settings: @Model.SiteSettings.BaseUrl</li>
+        <li>Nested Settings (via Site): @Model.SiteSettings.Nested.Enabled</li>
+        <li>Nested Settings (via Injection): @Model.NestedSettings.Enabled</li>
+        <li>Secrets.Username: @Model.SecretSettings.Username</li>
+        <li>Secrets.Password: @Model.SecretSettings.Password</li>
+    </ul>
+    <a href="/settings">Change Settings!</a>
+</body>
+</html>

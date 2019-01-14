@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>{{ApplicationName}} Settings</title>
+    <style>
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+        pre.value {
+            word-break: break-all;
+            word-wrap: break-word;
+        }
+
+        .tier-banner {
+            color: black;
+            font-weight: bold;
+            text-align: center;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="tier-banner">
+        {{ApplicationName}}: {{Tier}} - {{DataCenter}}
+    </div>
+    <div id="settings"></div>
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="{{Prefix}}/js"></script>
+    <script>
+        var instance = NFigUI.mount(
+            'settings', {
+                settingsJsonUrl: "{{Prefix}}/json",
+                setOverrideUrl: "{{Prefix}}/set",
+                clearOverrideUrl: "{{Prefix}}/clear",
+                tierColors: {
+                    Prod: "red",
+                    Test: "orange",
+                    Dev: "steelblue",
+                    Local: "forestgreen"
+                }
+            }
+        );
+    </script>
+</body>
+</html>

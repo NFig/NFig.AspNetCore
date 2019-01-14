@@ -1,0 +1,10 @@
+bin/
+obj/
+Cache/*
+Errors/*
+Logs/*
+.vs
+node_modules/
+.nupkgs/
+.publish/
+*.user

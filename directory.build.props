@@ -1,0 +1,8 @@
+<Project>
+  <PropertyGroup>
+    <PackageProjectUrl>https://github.com/NFig/NFig.AspNetCore</PackageProjectUrl>
+    <CodeAnalysisRuleset>$(MSBuildThisFileDirectory)Shared.ruleset</CodeAnalysisRuleset>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <MSBuildWarningsAsMessages>NETSDK1069</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+</Project>
