@@ -8,8 +8,8 @@
   },
   "cloudBuild": {
     "buildNumber": {
-      "enabled": false,
-      "setVersionVariables": false,
+      "enabled": true,
+      "setVersionVariables": true,
       "includeCommitId": {
         "when": "nonPublicReleaseOnly",
         "where": "buildMetadata"
