@@ -1,8 +1,15 @@
 <Project>
   <PropertyGroup>
-    <PackageProjectUrl>https://github.com/NFig/NFig.AspNetCore</PackageProjectUrl>
+    <VersionPrefix>0.2.0</VersionPrefix>
+    <Copyright>2019 Stack Exchange, Inc.</Copyright>
+    <Authors>Stack Exchange, Inc.; deanward81</Authors>
+    <PackageProjectUrl>https://github.com/NFig/NFig.AspNetCore/</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.github.com/NFig/NFig.AspNetCore/master/LICENSE</PackageLicenseUrl>
     <CodeAnalysisRuleset>$(MSBuildThisFileDirectory)Shared.ruleset</CodeAnalysisRuleset>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <MSBuildWarningsAsMessages>NETSDK1069</MSBuildWarningsAsMessages>
+
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/NFig/NFig.AspNetCore/</RepositoryUrl>    
   </PropertyGroup>
 </Project>
