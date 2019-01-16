@@ -1,7 +1,9 @@
 {
   "version": "0.2",
+  "assemblyVersion": "0.2.0.0",
   "publicReleaseRefSpec": [
-    "."
+    "^refs/heads/master$",
+    "^refs/tags/v\\d+\\.\\d+"
   ],
   "nugetPackageVersion": {
     "semVer": 2
@@ -9,11 +11,7 @@
   "cloudBuild": {
     "buildNumber": {
       "enabled": true,
-      "setVersionVariables": true,
-      "includeCommitId": {
-        "when": "nonPublicReleaseOnly",
-        "where": "buildMetadata"
-      }
+      "setVersionVariables": true
     }
   }
 }
