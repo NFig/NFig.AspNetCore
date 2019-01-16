@@ -1,7 +1,8 @@
 [CmdletBinding(PositionalBinding=$false)]
 param(
     [bool] $CreatePackages = $true,
-    [bool] $RunTests = $true
+    [bool] $RunTests = $true,
+    [string] $PullRequestNumber
 )
 
 Write-Host "Run Parameters:" -ForegroundColor Cyan
@@ -12,6 +13,11 @@ Write-Host "  dotnet --version:" (dotnet --version)
 $packageOutputFolder = "$PSScriptRoot\.nupkgs"
 $projectsToBuild = "NFig.AspNetCore"
 $projectsToPackage = "NFig.AspNetCore"
+
+if ($PullRequestNumber) {
+    Write-Host "Building for a pull request (#$PullRequestNumber), skipping packaging." -ForegroundColor Yellow
+    $CreatePackages = $false
+}
 
 foreach ($project in $projectsToBuild) {
     Write-Host "Building $project (dotnet build)..." -ForegroundColor "Magenta"
@@ -33,7 +39,7 @@ if ($CreatePackages) {
 
     foreach ($project in $projectsToPackage) {
         Write-Host "Packing $project (dotnet pack)..." -ForegroundColor "Magenta"
-        dotnet pack ".\src\$project\$project.csproj" -c Release /p:PackageOutputPath=$packageOutputFolder /p:NoPackageAnalysis=true /p:CI=true
+        dotnet pack ".\src\$project\$project.csproj" --no-build -c Release /p:PackageOutputPath=$packageOutputFolder /p:NoPackageAnalysis=true /p:CI=true
         Write-Host ""
     }
 }
