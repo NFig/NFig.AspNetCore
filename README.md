@@ -190,3 +190,7 @@ else
 }
 
 ```
+
+### Futures
+ - support NFig 3.x
+ - some tests would be nice
