@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/src/NFig.AspNetCore.Sample/NFig.AspNetCore.Sample.csproj"
+                "${workspaceFolder}/samples/NFig.AspNetCore.Sample/NFig.AspNetCore.Sample.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

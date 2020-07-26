@@ -11,9 +11,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/NFig.AspNetCore.Sample/bin/Debug/netcoreapp2.1/NFig.AspNetCore.Sample.dll",
+            "program": "${workspaceFolder}/samples/NFig.AspNetCore.Sample/bin/Debug/netcoreapp3.1/NFig.AspNetCore.Sample.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/NFig.AspNetCore.Sample",
+            "cwd": "${workspaceFolder}/samples/NFig.AspNetCore.Sample",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
