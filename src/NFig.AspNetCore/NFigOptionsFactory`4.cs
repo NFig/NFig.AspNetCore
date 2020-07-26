@@ -11,8 +11,8 @@ namespace NFig.AspNetCore
     /// </summary>
     internal class NFigOptionsFactory<TSettings, TTier, TDataCenter, TOptions> : IOptionsFactory<TOptions> 
         where TSettings : class, INFigSettings<TTier, TDataCenter>, new()
-        where TTier : struct
-        where TDataCenter : struct
+        where TTier : struct, Enum
+        where TDataCenter : struct, Enum
         where TOptions : class, new()
     {
         private readonly Func<TSettings, object> _accessor;
@@ -22,9 +22,9 @@ namespace NFig.AspNetCore
         /// <summary>
         /// Initializes a new instance with the specified options configurations.
         /// </summary>
+        /// <param name="accessor">Accessor used to retrieve the settings from the </param>
         /// <param name="setups">The configuration actions to run.</param>
         /// <param name="postConfigures">The initialization actions to run.</param>
-        /// <param name="validations">The validations to run.</param>
         public NFigOptionsFactory(Func<TSettings, object> accessor, IEnumerable<IConfigureOptions<TOptions>> setups, IEnumerable<IPostConfigureOptions<TOptions>> postConfigures)
         {
             _accessor = accessor;

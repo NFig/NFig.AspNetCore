@@ -1,6 +1,6 @@
 [CmdletBinding(PositionalBinding=$false)]
 param(
-    [bool] $CreatePackages = $true,
+    [bool] $CreatePackages,
     [bool] $RunTests = $true,
     [string] $PullRequestNumber
 )
@@ -10,38 +10,37 @@ Write-Host "  CreatePackages: $CreatePackages"
 Write-Host "  RunTests: $RunTests"
 Write-Host "  dotnet --version:" (dotnet --version)
 
-$packageOutputFolder = "$PSScriptRoot\.nupkgs"
-$projectsToBuild = "NFig.AspNetCore"
-$projectsToPackage = "NFig.AspNetCore"
-
+$packageOutputFolder = Join-Path $PSScriptRoot ".nupkgs"
 if ($PullRequestNumber) {
     Write-Host "Building for a pull request (#$PullRequestNumber), skipping packaging." -ForegroundColor Yellow
     $CreatePackages = $false
 }
 
-foreach ($project in $projectsToBuild) {
-    Write-Host "Building $project (dotnet build)..." -ForegroundColor "Magenta"
-	dotnet build ".\src\$project\$project.csproj" -c Release /p:CI=true
-    Write-Host ""
-}
+Write-Host "Building solution..." -ForegroundColor "Magenta"
+dotnet build ./Build.csproj -c Release /p:CI=true
+Write-Host "Done building." -ForegroundColor "Green"
 
 if ($RunTests) {
-    dotnet test "tests\NFig.AspNetCore.Tests\NFig.AspNetCore.Tests.csproj"
+    Write-Host "Running tests (all frameworks)" -ForegroundColor "Magenta"
+    dotnet test ./Build.csproj -c Release
+    if ($LastExitCode -ne 0) {
+        Write-Host "Error with tests, aborting build." -Foreground "Red"
+        Exit 1
+    }
+    Write-Host "Tests passed!" -ForegroundColor "Green"
 }
 
 if ($CreatePackages) {
-    mkdir -Force $packageOutputFolder | Out-Null
+    if (!(Test-Path $packageOutputFolder)) {
+        New-Item -ItemType Directory $packageOutputFolder | Out-Null
+    }
     Write-Host "Clearing existing $packageOutputFolder..." -NoNewline
-    Get-ChildItem $packageOutputFolder | Remove-Item -Confirm:$false -Recurse
+    Get-ChildItem $packageOutputFolder -ErrorAction Ignore | Remove-Item
     Write-Host "done." -ForegroundColor "Green"
 
     Write-Host "Building all packages" -ForegroundColor "Green"
 
-    foreach ($project in $projectsToPackage) {
-        Write-Host "Packing $project (dotnet pack)..." -ForegroundColor "Magenta"
-        dotnet pack ".\src\$project\$project.csproj" --no-build -c Release /p:PackageOutputPath=$packageOutputFolder /p:NoPackageAnalysis=true /p:CI=true
-        Write-Host ""
-    }
+    dotnet pack ./Build.csproj --no-build -c Release -o $packageOutputFolder /p:NoPackageAnalysis=true /p:CI=true
 }
 
 Write-Host "Done."

@@ -26,7 +26,7 @@ Next we call `UseNFig` in our `Configure` method. This is passed a builder that 
 
 That's it!
 
-**appSettings.json**
+**appsettings.json**
 
 ```json
 {

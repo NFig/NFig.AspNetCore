@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
@@ -10,8 +9,8 @@ namespace NFig.AspNetCore
     /// </summary>
     internal class NFigChangeTokenSource<TSettings, TTier, TDataCenter, TOptions> : IOptionsChangeTokenSource<TOptions>
         where TSettings : class, INFigSettings<TTier, TDataCenter>, new()
-        where TTier : struct
-        where TDataCenter : struct
+        where TTier : struct, Enum
+        where TDataCenter : struct, Enum
     {
         public string Name => Options.DefaultName;
 

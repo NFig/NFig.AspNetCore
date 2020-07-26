@@ -7,4 +7,6 @@ Logs/*
 node_modules/
 .nupkgs/
 .publish/
+.idea/
 *.user
+.DS_Store

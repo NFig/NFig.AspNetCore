@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Microsoft.Extensions.Primitives;
 
 namespace NFig.AspNetCore
@@ -9,11 +10,16 @@ namespace NFig.AspNetCore
     /// </summary>
     public class NFigSettingsWithStore<TSettings, TTier, TDataCenter>
         where TSettings : class, INFigSettings<TTier, TDataCenter>, new()
-        where TTier : struct
-        where TDataCenter : struct
+        where TTier : struct, Enum
+        where TDataCenter : struct, Enum
     {
         private NFigChangeToken _changeToken;
 
+        /// <summary>
+        /// Constructs a new instance of <see cref="NFigSettingsWithStore{TSettings,TTier,TDataCenter}"/>.
+        /// </summary>
+        /// <param name="settings">Settings used by the application.</param>
+        /// <param name="store"><see cref="NFigStore{TSettings,TTier,TDataCenter}"/> used by the application.</param>
         public NFigSettingsWithStore(TSettings settings, NFigStore<TSettings, TTier, TDataCenter> store)
         {
             Settings = settings;
@@ -22,10 +28,25 @@ namespace NFig.AspNetCore
             _changeToken = new NFigChangeToken();
         }
 
+        /// <summary>
+        /// Gets the <see cref="NFigStore{TSettings,TTier,TDataCenter}"/> used by the application.
+        /// </summary>
         public NFigStore<TSettings, TTier, TDataCenter> Store { get; }
+        
+        /// <summary>
+        /// Gets the settings used by the application.
+        /// </summary>
         public TSettings Settings { get; private set; }
+        
         internal IChangeToken ChangeToken => _changeToken;
 
+        /// <summary>
+        /// Updates the settings used by the application to a new instance. Usually fired when
+        /// the settings are reloaded by the store.
+        /// </summary>
+        /// <param name="settings">
+        /// New settings.
+        /// </param>
         public void UpdateSettings(TSettings settings)
         {
             Settings = settings;

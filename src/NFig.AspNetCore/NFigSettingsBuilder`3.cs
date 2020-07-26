@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using NFig.Redis;
 using StackExchange.Redis;
 
@@ -9,11 +10,11 @@ namespace NFig.AspNetCore
     /// </summary>
     public class NFigSettingsBuilder<TSettings, TTier, TDataCenter>
         where TSettings : class, INFigSettings<TTier, TDataCenter>, new()
-        where TTier : struct
-        where TDataCenter : struct
+        where TTier : struct, Enum
+        where TDataCenter : struct, Enum
     {
         private Func<SettingsUpdateDelegate<TSettings, TTier, TDataCenter>, NFigSettingsWithStore<TSettings, TTier, TDataCenter>> _settingsFactory;
-
+        
         /// <summary>
         /// Configures an NFig store that is backed by Redis.
         /// </summary>

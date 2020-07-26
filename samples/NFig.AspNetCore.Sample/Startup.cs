@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -26,7 +27,20 @@ namespace NFig.AspNetCore.Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddOptions();
-            services.AddNFig<Settings, Tier, DataCenter>();
+            services.AddNFig<Settings, Tier, DataCenter>(
+                c =>
+                {
+                    // just as an example, reverse default colors
+                    c.TierColors = new Dictionary<Tier, Color>
+                    {
+                        [Tier.Local] = Color.Red,
+                        [Tier.Dev] = Color.DarkOrange,
+                        [Tier.Test] = Color.SteelBlue,
+                        [Tier.Prod] = Color.ForestGreen
+                    };
+                }
+            );
+            
             services
                 .AddOptions<SecretSettings>()
                 .Configure(s =>
@@ -39,14 +53,11 @@ namespace NFig.AspNetCore.Sample
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
             app
+                .UseDeveloperExceptionPage()
+                .UseRouting()
                 .UseNFig<Settings, Tier, DataCenter>(
                     (cfg, builder) =>
                     {
@@ -56,7 +67,9 @@ namespace NFig.AspNetCore.Sample
                         builder.UseRedis(settings.ApplicationName, settings.Tier, settings.DataCenter, connectionString);
                     }
                 )
-                .UseMvc();
+                .UseEndpoints(
+                    x => x.MapControllers()
+                );
         }
     }
 }
