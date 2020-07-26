@@ -18,7 +18,7 @@ Integrating NFig into your ASP.NET Core application is easy!
 
 ### Installation
 
-Install the `[NFig.AspNetCore](...)` NuGet package using:
+Install the `[NFig.AspNetCore](https://www.nuget.org/packages/NFig.AspNetCore/)` NuGet package using:
 
 ```bat
 dotnet add <project> package NFig.AspNetCore
