@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
-using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NFig.UI;
 
 namespace NFig.AspNetCore
@@ -28,8 +30,8 @@ namespace NFig.AspNetCore
 
     public static class NFigMiddleware<TSettings, TTier, TDataCenter>
         where TSettings : class, INFigSettings<TTier, TDataCenter>, new()
-        where TTier : struct
-        where TDataCenter : struct
+        where TTier : struct, Enum
+        where TDataCenter : struct, Enum
     {
         private static readonly string _htmlTemplate;
         private static readonly ImmutableDictionary<string, HandleRequestDelegate> _handlers;
@@ -41,7 +43,7 @@ namespace NFig.AspNetCore
             _handlers = new Dictionary<string, HandleRequestDelegate>(StringComparer.OrdinalIgnoreCase)
             {
                 [string.Empty] = IndexAsync,
-                ["json"] = Json,
+                ["json"] = JsonAsync,
                 ["set"] = SetOverrideAsync,
                 ["clear"] = ClearOverrideAsync,
                 ["js"] = JavascriptAsync,
@@ -53,12 +55,21 @@ namespace NFig.AspNetCore
         private static string GetEmbeddedResource(string name)
         {
             using (var stream = typeof(NFigMiddleware<,,>).Assembly.GetManifestResourceStream(name))
-            using (var streamReader = new StreamReader(stream))
+            using (var streamReader = new StreamReader(stream!))
             {
                 return streamReader.ReadToEnd();
             }
         }
 
+        /// <summary>
+        /// Handles a request for NFig setting management resources.
+        /// </summary>
+        /// <param name="ctx">
+        /// An <see cref="HttpContext"/> representing the current request context.
+        /// </param>
+        /// <returns>
+        /// A task that completes when the request has completed.
+        /// </returns>
         public static Task HandleRequestAsync(HttpContext ctx)
         {
             // In MVC requests, PathInfo isn't set - determine via Path..
@@ -68,7 +79,7 @@ namespace NFig.AspNetCore
 
             if (!NFigSettingsCache.TryGet<TSettings, TTier, TDataCenter>(out var settingsWithStore))
             {
-                return NotFound(ctx);
+                return NotFoundAsync(ctx);
             }
 
             if (_handlers.TryGetValue(resource, out var handler))
@@ -79,7 +90,7 @@ namespace NFig.AspNetCore
             return _handlers[string.Empty](ctx, settingsWithStore);
         }
 
-        private static Task NotFound(HttpContext ctx)
+        private static Task NotFoundAsync(HttpContext ctx)
         {
             ctx.Response.StatusCode = (int)HttpStatusCode.NotFound;
             return Task.CompletedTask;
@@ -89,30 +100,39 @@ namespace NFig.AspNetCore
         {
             if (ctx.Request.Method != "GET")
             {
-                return NotFound(ctx);
+                return NotFoundAsync(ctx);
             }
 
+            var options = ctx.RequestServices.GetRequiredService<IOptions<NFigOptions<TTier, TDataCenter>>>();
+            var tierColors = options.Value.TierColors.ToDictionary(
+                x => x.Key.ToString(),
+                x => $"#{x.Value.R:x2}{x.Value.B:x2}{x.Value.G:x2}"
+            );
             var html = _htmlTemplate
                 .Replace("{{ApplicationName}}", settingsWithStore.Settings.ApplicationName)
                 .Replace("{{Tier}}", settingsWithStore.Settings.Tier.ToString())
                 .Replace("{{DataCenter}}", settingsWithStore.Settings.DataCenter.ToString())
-                .Replace("{{Prefix}}", ctx.Request.Path.Value);
+                .Replace("{{Prefix}}", ctx.Request.Path.Value)
+                .Replace("{{TierColor}}", tierColors[settingsWithStore.Settings.Tier.ToString()])
+                .Replace("{{TierColors}}", JsonSerializer.Serialize(tierColors));
 
             return HtmlAsync(ctx, html);
         }
 
-        private static Task Json(HttpContext ctx, NFigSettingsWithStore<TSettings, TTier, TDataCenter> settingsWithStore)
+        private static readonly TDataCenter[] _dataCenterValues = (TDataCenter[]) Enum.GetValues(typeof(TDataCenter));
+        
+        private static Task JsonAsync(HttpContext ctx, NFigSettingsWithStore<TSettings, TTier, TDataCenter> settingsWithStore)
         {
             if (ctx.Request.Method != "GET")
             {
-                return NotFound(ctx);
+                return NotFoundAsync(ctx);
             }
 
             var json = settingsWithStore.Store.GetSettingsJson(
                 settingsWithStore.Settings.ApplicationName,
                 settingsWithStore.Settings.Tier,
                 settingsWithStore.Settings.DataCenter,
-                (TDataCenter[])Enum.GetValues(typeof(TDataCenter))
+                _dataCenterValues
             );
 
             return JsonAsync(ctx, json);
@@ -122,10 +142,10 @@ namespace NFig.AspNetCore
         {
             if (ctx.Request.Method != "GET")
             {
-                return NotFound(ctx);
+                return NotFoundAsync(ctx);
             }
 
-            return JsonAsync(ctx, NFigUI.SettingsPanelScript);
+            return JavascriptAsync(ctx, NFigUI.SettingsPanelScript);
         }
 
         private class SettingData
@@ -135,19 +155,13 @@ namespace NFig.AspNetCore
             public TDataCenter DataCenter { get; set; }
         }
 
-        private static async Task<T> ReadJsonAsync<T>(HttpRequest request)
-        {
-            using (var reader = new StreamReader(request.Body, Encoding.UTF8))
-            { 
-                return JsonConvert.DeserializeObject<T>(await reader.ReadToEndAsync());
-            }
-        }
+        private static ValueTask<T> ReadJsonAsync<T>(HttpRequest request) => JsonSerializer.DeserializeAsync<T>(request.Body);
 
         private static async Task SetOverrideAsync(HttpContext ctx, NFigSettingsWithStore<TSettings, TTier, TDataCenter> settingsWithStore)
         {
             if (ctx.Request.Method != "POST")
             {
-                await NotFound(ctx);
+                await NotFoundAsync(ctx);
                 return;
             }
 
@@ -194,18 +208,17 @@ namespace NFig.AspNetCore
                 settingData.SettingName,
                 settingsWithStore.Settings.Tier,
                 settingsWithStore.Settings.DataCenter,
-                (TDataCenter[])Enum.GetValues(typeof(TDataCenter))
+                _dataCenterValues
             );
 
             await JsonAsync(ctx, json);
-            return;
         }
 
         private static async Task ClearOverrideAsync(HttpContext ctx, NFigSettingsWithStore<TSettings, TTier, TDataCenter> settingsWithStore)
         {
             if (ctx.Request.Method != "POST")
             {
-                await NotFound(ctx);
+                await NotFoundAsync(ctx);
                 return;
             }
 
@@ -234,11 +247,10 @@ namespace NFig.AspNetCore
                 settingData.SettingName,
                 settingsWithStore.Settings.Tier,
                 settingsWithStore.Settings.DataCenter,
-                (TDataCenter[])Enum.GetValues(typeof(TDataCenter))
+                _dataCenterValues
             );
 
             await JsonAsync(ctx, json);
-            return;
         }
 
         private static Task BadRequestAsync(HttpContext ctx, string content)

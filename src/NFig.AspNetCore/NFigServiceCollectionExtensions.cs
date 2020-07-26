@@ -5,22 +5,24 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using NFig;
 using NFig.AspNetCore;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+    /// <summary>
+    /// Extensions to configure NFig in a <see cref="IServiceCollection"/>.
+    /// </summary>
     public static class NFigServiceCollectionExtensions
     {
         /// <summary>
         /// Adds services needed to support resolution of configuration data
         /// from an NFig store.
         /// </summary>
-        public static IServiceCollection AddNFig<TSettings, TTier, TDataCenter>(this IServiceCollection services)
+        public static IServiceCollection AddNFig<TSettings, TTier, TDataCenter>(this IServiceCollection services, Action<NFigOptions<TTier, TDataCenter>> configure = null)
             where TSettings : class, INFigSettings<TTier, TDataCenter>, new()
-            where TTier : struct
-            where TDataCenter : struct
+            where TTier : struct, Enum
+            where TDataCenter : struct, Enum
         {
             Func<TSettings, object> CreateGetterMethod(PropertyAndParent propertyInfo)
             {
@@ -51,11 +53,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 // the list is in bottom-to-top order, so we have to iterate in reverse
                 for (var i = list.Count - 1; i >= 1; i--)
                 {
-                    il.Emit(OpCodes.Callvirt, list[i].GetMethod); // [nested-property-obj]
+                    il.Emit(OpCodes.Callvirt, list[i].GetMethod!); // [nested-property-obj]
                 }
 
                 // stack should now be [parent-obj-of-setting]
-                il.Emit(OpCodes.Callvirt, propertyInfo.Property.GetMethod); // [setting-value]
+                il.Emit(OpCodes.Callvirt, propertyInfo.Property.GetMethod!); // [setting-value]
                 il.Emit(OpCodes.Ret);
 
                 return (Func<TSettings, object>)dynamicMethod.CreateDelegate(typeof(Func<TSettings, object>));
@@ -165,6 +167,11 @@ namespace Microsoft.Extensions.DependencyInjection
             );
 
             services.AddSingleton<IOptionsChangeTokenSource<TSettings>, NFigChangeTokenSource<TSettings, TTier, TDataCenter, TSettings>>();
+            services.AddOptions<NFigOptions<TTier, TDataCenter>>();
+            if (configure != null)
+            {
+                services.Configure(configure);
+            }
             return services;
         }
 
@@ -176,8 +183,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 Parent = parent;
             }
 
-            public PropertyAndParent Parent { get; set; }
-            public PropertyInfo Property { get; set; }
+            public PropertyAndParent Parent { get; }
+            public PropertyInfo Property { get; }
         }
     }
 }

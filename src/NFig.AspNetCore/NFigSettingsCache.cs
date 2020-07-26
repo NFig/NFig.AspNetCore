@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using Microsoft.AspNetCore.Builder;
 
 namespace NFig.AspNetCore
 {
@@ -13,7 +14,7 @@ namespace NFig.AspNetCore
 
         /// <summary>
         /// Attempts to locate a <typeparamref name="TSettings"/> implementation that was registered
-        /// by the <see cref="NFigConifg"/>
+        /// by the <see cref="NFigApplicationBuilderExtensions.UseNFig{TSettings,TTier,TDataCenter}"/> method.
         /// </summary>
         /// <typeparam name="TSettings"></typeparam>
         /// <typeparam name="TTier"></typeparam>
@@ -22,8 +23,8 @@ namespace NFig.AspNetCore
         /// <returns></returns>
         public static bool TryGet<TSettings, TTier, TDataCenter>(out NFigSettingsWithStore<TSettings, TTier, TDataCenter> store)
             where TSettings : class, INFigSettings<TTier, TDataCenter>, new()
-            where TTier : struct
-            where TDataCenter : struct
+            where TTier : struct, Enum
+            where TDataCenter : struct, Enum
         {
             if (_knownStores.TryGetValue(typeof(TSettings), out var untypedStore))
             {
@@ -37,7 +38,7 @@ namespace NFig.AspNetCore
 
         public static NFigSettingsWithStore<TSettings, TTier, TDataCenter> GetOrAdd<TSettings, TTier, TDataCenter>(Func<NFigSettingsWithStore<TSettings, TTier, TDataCenter>> factory)
             where TSettings : class, INFigSettings<TTier, TDataCenter>, new()
-            where TTier : struct
-            where TDataCenter : struct => (NFigSettingsWithStore<TSettings, TTier, TDataCenter>)_knownStores.GetOrAdd(typeof(TSettings), _ => factory());
+            where TTier : struct, Enum
+            where TDataCenter : struct, Enum => (NFigSettingsWithStore<TSettings, TTier, TDataCenter>)_knownStores.GetOrAdd(typeof(TSettings), _ => factory());
     }
 }

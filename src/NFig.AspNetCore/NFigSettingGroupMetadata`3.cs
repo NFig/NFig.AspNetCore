@@ -7,8 +7,8 @@ namespace NFig.AspNetCore
     /// </summary>
     internal class NFigSettingGroupMetadata<TSettings, TTier, TDataCenter>
         where TSettings : class, INFigSettings<TTier, TDataCenter>, new()
-        where TTier : struct
-        where TDataCenter : struct
+        where TTier : struct, Enum
+        where TDataCenter : struct, Enum
     {
         public NFigSettingGroupMetadata(Type type, Func<TSettings, object> provider)
         {

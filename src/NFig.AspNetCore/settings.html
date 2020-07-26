@@ -12,16 +12,19 @@
         }
 
         .tier-banner {
-            color: black;
+            color: white;
             font-weight: bold;
             text-align: center;
-            font-size: 16px;
-            margin-bottom: 10px;
+            padding: 10px;
+        }
+        
+        .tier-banner.{{Tier}} {
+            background-color: {{TierColor}};
         }
     </style>
 </head>
 <body>
-    <div class="tier-banner">
+    <div class="tier-banner {{Tier}}">
         {{ApplicationName}}: {{Tier}} - {{DataCenter}}
     </div>
     <div id="settings"></div>
@@ -34,12 +37,7 @@
                 settingsJsonUrl: "{{Prefix}}/json",
                 setOverrideUrl: "{{Prefix}}/set",
                 clearOverrideUrl: "{{Prefix}}/clear",
-                tierColors: {
-                    Prod: "red",
-                    Test: "orange",
-                    Dev: "steelblue",
-                    Local: "forestgreen"
-                }
+                tierColors: {{TierColors}}
             }
         );
     </script>
