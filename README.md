@@ -24,7 +24,7 @@ Install the `[NFig.AspNetCore](https://www.nuget.org/packages/NFig.AspNetCore/)`
 dotnet add <project> package NFig.AspNetCore
 ```
 
-**If setting up a web project it's a good idea to check out the [sample project](src/NFig.AspNetCore.Sample).**
+**If setting up a web project it's a good idea to check out the [sample project](samples/NFig.AspNetCore.Sample).**
 
 ### Configuration
 
