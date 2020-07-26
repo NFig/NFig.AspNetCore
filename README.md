@@ -1,6 +1,16 @@
 # NFig.AspNetCore
 
-Provides ASP.NET Core support for NFig  by integrating into the options framework.
+![Build status](https://github.com/NFig/NFig.AspNetCore/workflows/Build,%20Test%20&%20Package/badge.svg)
+
+Provides ASP.NET Core support for NFig by integrating into the options framework.
+
+#### Package Status
+
+MyGet Pre-release feed: https://www.myget.org/gallery/stackoverflow
+
+| Package | NuGet Stable | NuGet Pre-release | Downloads | MyGet |
+| ------- | ------------ | ----------------- | --------- | ----- |
+| [NFig.AspNetCore](https://www.nuget.org/packages/NFig.AspNetCore/) | [![NFig.AspNetCore](https://img.shields.io/nuget/v/NFig.AspNetCore.svg)](https://www.nuget.org/packages/NFig.AspNetCore/) | [![NFig.AspNetCore](https://img.shields.io/nuget/vpre/NFig.AspNetCore.svg)](https://www.nuget.org/packages/NFig.AspNetCore/) | [![NFig.AspNetCore](https://img.shields.io/nuget/dt/NFig.AspNetCore.svg)](https://www.nuget.org/packages/NFig.AspNetCore/) | [![NFig.AspNetCore MyGet](https://img.shields.io/myget/stackoverflow/vpre/NFig.AspNetCore.svg)](https://www.myget.org/feed/stackoverflow/package/nuget/NFig.AspNetCore) |
 
 ## Getting Started
 
