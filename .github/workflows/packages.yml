@@ -16,10 +16,22 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - name: .NET Build
+    - name: Build
       run: dotnet build Build.csproj -c Release --nologo /p:CI=true
-    - name: .NET Test
+    - name: Test
       run: dotnet test Build.csproj -c Release --no-build --nologo /p:CI=true
+    - name: Tool Restore
+      working-directory: tests
+      run: dotnet tool restore
+    - name: Code coverage
+      run: dotnet test Build.csproj -c Release --no-build --nologo /p:CI=true --collect:"XPlat Code Coverage" 
+    - name: Code coverage report generation
+      run:  reportgenerator -reports:tests/NFig.AspNetCore.Tests/TestResults/*/coverage.cobertura.xml -targetdir:.coverage -reporttypes:HtmlInline;Badges
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v2
+      with:
+        name: code-coverage-report
+        path: .coverage/*.html
   build-windows:
     needs: build-ubuntu
     runs-on: windows-latest
@@ -29,11 +41,11 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
-    - name: .NET Build
+    - name: Build
       run: dotnet build Build.csproj -c Release --nologo /p:CI=true
-    - name: .NET Test
+    - name: Test
       run: dotnet test Build.csproj -c Release --no-build --nologo /p:CI=true
-    - name: .NET Pack
+    - name: Pack
       run: dotnet pack Build.csproj --no-build -c Release --nologo /p:PackageOutputPath=${env:GITHUB_WORKSPACE}\.nupkgs /p:CI=true
     - name: Push to MyGet
       run: dotnet nuget push ${env:GITHUB_WORKSPACE}\.nupkgs\*.nupkg -s https://www.myget.org/F/stackoverflow/api/v2/package -k ${{ secrets.MYGET_API_KEY }}
