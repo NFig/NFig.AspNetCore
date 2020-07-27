@@ -5,11 +5,11 @@ using Xunit;
 
 namespace NFig.AspNetCore.Tests
 {
-    public class NFigTests : IClassFixture<NFigFixture<Startup>>
+    public class BasicFunctionalityTests : IClassFixture<NFigFixture<Startup>>
     {
         private readonly NFigFixture<Startup> _fixture;
 
-        public NFigTests(NFigFixture<Startup> fixture)
+        public BasicFunctionalityTests(NFigFixture<Startup> fixture)
         {
             _fixture = fixture;
         }
