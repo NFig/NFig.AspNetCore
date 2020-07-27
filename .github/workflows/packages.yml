@@ -27,7 +27,7 @@ jobs:
       run: dotnet test Build.csproj -c Release --no-build --nologo /p:CI=true --collect:"XPlat Code Coverage" 
     - name: Code coverage report generation
       working-directory: tests
-      run:  reportgenerator -reports:NFig.AspNetCore.Tests/TestResults/*/coverage.cobertura.xml -targetdir:${env:GITHUB_WORKSPACE}/.coverage -reporttypes:HtmlInline;Badges
+      run:  dotnet reportgenerator -reports:NFig.AspNetCore.Tests/TestResults/*/coverage.cobertura.xml -targetdir:${env:GITHUB_WORKSPACE}/.coverage -reporttypes:HtmlInline;Badges
     - name: Archive code coverage results
       uses: actions/upload-artifact@v2
       with:
