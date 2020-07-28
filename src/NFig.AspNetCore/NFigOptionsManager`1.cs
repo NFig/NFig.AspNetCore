@@ -16,7 +16,7 @@ namespace NFig.AspNetCore
             _monitor = monitor;
         }
 
-        public TOptions Value => _monitor.Get(Options.DefaultName);
+        public TOptions Value => Get(Options.DefaultName);
 
         public TOptions Get(string name) => _monitor.Get(name);
     }
